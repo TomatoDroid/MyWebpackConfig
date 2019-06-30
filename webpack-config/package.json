@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack-dev-server --config webpack.dev.js --open",
+    "dev": "webpack-dev-server --config webpack.dev.js",
     "build": "webpack --config webpack.prod.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,6 +13,7 @@
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.4.5",
+    "@babel/plugin-syntax-dynamic-import": "^7.2.0",
     "@babel/preset-env": "^7.4.5",
     "@babel/preset-react": "^7.0.0",
     "autoprefixer": "^9.6.0",
@@ -39,6 +40,7 @@
     "webpack-dev-server": "^3.7.1"
   },
   "dependencies": {
-    "lib-flexible": "^0.3.2"
+    "lib-flexible": "^0.3.2",
+    "liuzhen-large-number": "^1.0.0"
   }
 }
