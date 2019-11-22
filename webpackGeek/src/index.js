@@ -8,7 +8,7 @@ class Search extends React.Component {
     return (
       <div className="index">
         Hello React --babel
-        <p className="web-font">aaaa你是真的皮</p>
+        <p className="web-font">哈哈dsadsa</p>
         <img src={logo} />
       </div>
     );
