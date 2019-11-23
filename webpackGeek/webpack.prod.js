@@ -6,11 +6,44 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCssAssetsWebpackPlugin = require("optimize-css-assets-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const glob = require("glob");
 
+const setMPA = () => {
+  const entry = {};
+  const htmlWebpackPlugins = [];
+
+  // ['/Users/zhensir/Desktop/MyWebpackConfig/webpackGeek/src/index/index.js',]
+  const entryFiles = glob.sync(path.join(__dirname, "src/*/index.js"));
+  Object.values(entryFiles).forEach(file => {
+    const match = file.match(/src\/(.*)\/index\.js/);
+    const chunkName = match[1];
+    entry[chunkName] = file;
+    htmlWebpackPlugins.push(
+      new HtmlWebpackPlugin({
+        template: path.join(__dirname, `src/${chunkName}/index.html`),
+        filename: `${chunkName}.html`,
+        chunks: [chunkName],
+        inject: true,
+        minify: {
+          html5: true,
+          collapseWhitespace: true,
+          preserveLineBreaks: false,
+          minifyCSS: true,
+          minifyJS: true,
+          removeComments: false
+        }
+      })
+    );
+  });
+  return {
+    entry,
+    htmlWebpackPlugins
+  };
+};
+
+const { entry, htmlWebpackPlugins } = setMPA();
 module.exports = {
-  entry: {
-    app: "./src/index.js"
-  },
+  entry: entry,
   output: {
     path: path.join(__dirname, "dist"),
     filename: "[name]_[chunkhash:8].js"
@@ -82,20 +115,6 @@ module.exports = {
     ]
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: path.join(__dirname, "src/index.html"),
-      filename: "index.html",
-      chunks: ["app"],
-      inject: true,
-      minify: {
-        html5: true,
-        collapseWhitespace: true,
-        preserveLineBreaks: false,
-        minifyCSS: true,
-        minifyJS: true,
-        removeComments: false
-      }
-    }),
     new MiniCssExtractPlugin({
       filename: "[name]_[contenthash:8].css"
     }),
@@ -104,5 +123,5 @@ module.exports = {
       cssProcessor: require("cssnano")
     }),
     new CleanWebpackPlugin()
-  ]
+  ].concat(htmlWebpackPlugins)
 };
