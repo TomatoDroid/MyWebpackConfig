@@ -1,13 +1,13 @@
 "use strict";
 
 const path = require("path");
-const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCssAssetsWebpackPlugin = require("optimize-css-assets-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const glob = require("glob");
 const FriendlyErrorsWebpackPlugin = require("friendly-errors-webpack-plugin");
+const HTMLInlineCSSWebpackPlugin = require('html-inline-css-webpack-plugin').default;
 
 const setMPA = () => {
   const entry = {};
@@ -21,6 +21,7 @@ const setMPA = () => {
     entry[chunkName] = file;
     htmlWebpackPlugins.push(
       new HtmlWebpackPlugin({
+        inlineSource: '.css$',
         template: path.join(__dirname, `src/${chunkName}/index.html`),
         filename: `${chunkName}.html`,
         chunks: [chunkName],
@@ -137,6 +138,6 @@ module.exports = {
         }
       });
     }
-  ].concat(htmlWebpackPlugins),
+  ].concat(htmlWebpackPlugins).concat(new HTMLInlineCSSWebpackPlugin()),
   stats: "errors-only"
 };
