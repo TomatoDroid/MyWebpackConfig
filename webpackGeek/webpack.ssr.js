@@ -1,40 +1,40 @@
 "use strict";
 
 const path = require("path");
-const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const OptimizeCssAssetsWebpackPlugin = require("optimize-css-assets-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const glob = require("glob");
-const FriendlyErrorsWebpackPlugin = require("friendly-errors-webpack-plugin");
 
 const setMPA = () => {
   const entry = {};
   const htmlWebpackPlugins = [];
 
   // ['/Users/zhensir/Desktop/MyWebpackConfig/webpackGeek/src/index/index.js',]
-  const entryFiles = glob.sync(path.join(__dirname, "src/*/index.js"));
+  const entryFiles = glob.sync(path.join(__dirname, "src/*/index-server.js"));
   Object.values(entryFiles).forEach(file => {
-    const match = file.match(/src\/(.*)\/index\.js/);
-    const chunkName = match[1];
-    entry[chunkName] = file;
-    htmlWebpackPlugins.push(
-      new HtmlWebpackPlugin({
-        template: path.join(__dirname, `src/${chunkName}/index.html`),
-        filename: `${chunkName}.html`,
-        chunks: [chunkName],
-        inject: true,
-        minify: {
-          html5: true,
-          collapseWhitespace: true,
-          preserveLineBreaks: false,
-          minifyCSS: true,
-          minifyJS: true,
-          removeComments: false
-        }
-      })
-    );
+    const match = file.match(/src\/(.*)\/index-server\.js/);
+    const chunkName = match && match[1];
+    if (chunkName) {
+      entry[chunkName] = file;
+      htmlWebpackPlugins.push(
+        new HtmlWebpackPlugin({
+          template: path.join(__dirname, `src/${chunkName}/index.html`),
+          filename: `${chunkName}.html`,
+          chunks: [chunkName],
+          inject: true,
+          minify: {
+            html5: true,
+            collapseWhitespace: true,
+            preserveLineBreaks: false,
+            minifyCSS: true,
+            minifyJS: true,
+            removeComments: false
+          }
+        })
+      );
+    }
   });
   return {
     entry,
@@ -47,7 +47,8 @@ module.exports = {
   entry: entry,
   output: {
     path: path.join(__dirname, "dist"),
-    filename: "[name]_[chunkhash:8].js"
+    filename: "[name]-server.js",
+    libraryTarget: "umd"
   },
   mode: "production",
   module: {
@@ -123,20 +124,6 @@ module.exports = {
       assetNameRegExp: /.css$/g,
       cssProcessor: require("cssnano")
     }),
-    new CleanWebpackPlugin(),
-    new FriendlyErrorsWebpackPlugin(),
-    function() {
-      this.hooks.done.tap("done", stats => {
-        if (
-          stats.compilation.errors &&
-          stats.compilation.errors.length &&
-          process.argv.indexOf("--watch" == -1)
-        ) {
-          console.log("build error");
-          process.exit(-1);
-        }
-      });
-    }
-  ].concat(htmlWebpackPlugins),
-  stats: "errors-only"
+    new CleanWebpackPlugin()
+  ].concat(htmlWebpackPlugins)
 };
